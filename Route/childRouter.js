@@ -71,6 +71,6 @@ router
 router.route("/childs/:id")
     .get(checkAdmin, childValidation.getChildValidation, validation, controller.getChild)
     .delete(childValidation.deleteValidation, validation, controller.deleteChild)
-    .patch( childValidation.patchValidation, validation, controller.updateChild);
+    .patch(upload.single("image"), childValidation.patchValidation, validation, controller.updateChild);
 
 module.exports = router;
