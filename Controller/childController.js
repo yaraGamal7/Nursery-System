@@ -27,47 +27,58 @@ exports.getChild = (request, response, next) => {
 		});
 };
 
-exports.addChild = (request, response, next) => {
-	new ChildSchema({
-		_id: request.body.id,
-		fullName: request.body.fullName,
-		age: request.body.age,
-		level: request.body.level,
-		address: request.body.address,
-	})
-		.save()
-		.then((data) => {
-			response.status(201).json({ data });
-		})
-		.catch((error) => {
-			next(error);
-		});
+
+exports.addChild = async (req, res, next) => {
+    try {
+        const { fullName, age, level, address } = req.body;
+        const image = req.file; // Access uploaded image
+
+        // Assuming your Child schema has an image field
+        const newChild = new ChildSchema({
+            fullName,
+            age,
+            level,
+            address,
+            image: image ? image.filename : null // Save the filename in the database
+        });
+
+        const savedChild = await newChild.save();
+        res.status(201).json({ child: savedChild });
+    } catch (error) {
+        next(error);
+    }
 };
 
-exports.updateChild = (request, response, next) => {
-	ChildSchema.updateOne(
-		{
-			_id: request.body.id,
-		},
-		{
-			$set: {
-				fullName: request.body.fullName,
-				age: request.body.age,
-				level: request.body.level,
-				address: request.body.address,
-			},
-		}
-	)
-		.then((data) => {
-			if (data.matchedCount == 0) {
-				next(new Error("Child Not Found"));
-			} else {
-				response.status(200).json({ data: "Updated" });
-			}
-		})
-		.catch((error) => {
-			next(error);
-		});
+exports.updateChild = async (req, res, next) => {
+    try {
+        const { id, fullName, age, level, address } = req.body;
+        const image = req.file; 
+
+
+        const updateFields = {
+            fullName,
+            age,
+            level,
+            address
+        };
+
+       
+        if (image) {
+            updateFields.image = image.filename; 
+        }
+
+       
+        const updatedChild = await Child.findByIdAndUpdate(id, { $set: updateFields }, { new: true });
+
+        
+        if (!updatedChild) {
+            throw new Error("Child Not Found");
+        }
+
+        res.status(200).json({ message: "Updated", child: updatedChild });
+    } catch (error) {
+        next(error);
+    }
 };
 
 exports.deleteChild = (request, response, next) => {
