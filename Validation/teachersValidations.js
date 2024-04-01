@@ -1,7 +1,6 @@
 const { body, param } = require("express-validator");
 
 exports.postValidation = [
-	//body("_id").isMongoId().withMessage("Teacher Id should be Object"),
 	body("fullName").isString().withMessage("Teacher Name should be string"),
 	body("password").isString().withMessage("Password Must Be Hybird").isLength({ Min: 4 }).withMessage("Password must be > 8"),
 	body("email").isEmail().withMessage("Email is Invalid"),

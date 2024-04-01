@@ -13,33 +13,31 @@ exports.getAllChilds = (request, response, next) => {
 		});
 };
 
-exports.getChild = (request, response, next) => {
-	ChildSchema.findById(request.params.id)
-		.then((data) => {
-			if (data == null) {
-				next(new Error("Child Not Found"));
-			} else {
-				response.status(200).json({ data });
-			}
-		})
-		.catch((error) => {
-			next(error);
-		});
+
+exports.getChild = (req, res, next) => {
+    const childId = parseInt(req.params.id); 
+    ChildSchema.findOne({ id: childId })
+        .then((child) => {
+            if (!child) {
+                return res.status(404).json({ message: "Child not found" });
+            }
+            res.status(200).json({ child });
+        })
+        .catch((error) => next(error));
 };
 
 
 exports.addChild = async (req, res, next) => {
     try {
         const { fullName, age, level, address } = req.body;
-        const image = req.file; // Access uploaded image
-
-        // Assuming your Child schema has an image field
+        const image = req.file; 
+     
         const newChild = new ChildSchema({
             fullName,
             age,
             level,
             address,
-            image: image ? image.filename : null // Save the filename in the database
+            image: image ? image.filename : null 
         });
 
         const savedChild = await newChild.save();
@@ -49,51 +47,26 @@ exports.addChild = async (req, res, next) => {
     }
 };
 
-exports.updateChild = async (req, res, next) => {
-    try {
-        const { id, fullName, age, level, address } = req.body;
-        const image = req.file; 
+exports.updateChild = (req, res, next) => {
+    const childId = req.params.id;
 
+    const image = req.file ? req.file.path.replace(/\\/g, '/') : null;
 
-        const updateFields = {
-            fullName,
-            age,
-            level,
-            address
-        };
+    const updateData = {
+        ...req.body,
+        ...(image && { image })
+    };
 
-       
-        if (image) {
-            updateFields.image = image.filename; 
-        }
-
-       
-        const updatedChild = await Child.findByIdAndUpdate(id, { $set: updateFields }, { new: true });
-
-        
-        if (!updatedChild) {
-            throw new Error("Child Not Found");
-        }
-
-        res.status(200).json({ message: "Updated", child: updatedChild });
-    } catch (error) {
-        next(error);
-    }
+    ChildSchema.findOneAndUpdate({ id: childId }, updateData, { new: true })
+        .then((updatedChild) => {
+            if (!updatedChild) {
+                return res.status(404).json({ message: "Child not found" });
+            }
+            res.status(200).json({ message: "Child updated successfully", data: updatedChild });
+        })
+        .catch((error) => next(error));
 };
 
-// exports.deleteChild = (request, response, next) => {
-// 	ChildSchema.deleteOne({ _id: request.body.id })
-// 		.then((data) => {
-// 			if (data.deletedCount != 1) {
-// 				next(new Error("Child Not Found"));
-// 			} else {
-// 				response.status(200).json({ data: "Deleted" });
-// 			}
-// 		})
-// 		.catch((error) => {
-// 			next(error);
-// 		});
-// };
 
 exports.deleteChild = (req, res, next) => {
     const childId = req.params.id;

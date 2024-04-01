@@ -1,36 +1,67 @@
+
 const { body, param } = require("express-validator");
 
 exports.postValidation = [
-	// body("_id").isNumeric().withMessage("Child Id should be Number"),
-	body("fullName").isString().withMessage("Child Name should be string"),
-	body("age").isInt().withMessage("Child age is Invalid"),
-	body("level").isIn(["PreKG", "KG1", "KG2"]).withMessage("Invalid Level Selection"),
-	body("address").isObject().withMessage("Address is Invalid"),
-	body("address.city").isString().withMessage("Invalid City"),
-	body("address.street").isString().withMessage("Invalid Street"),
-	body("address.building").isInt().withMessage("Invalid Building Number"),
-	// body("image").optional().isString().withMessage("Image is Invalid"),
-
+    body("fullName")
+        .isString()
+        .withMessage("Full name should be a string")
+        .isLength({ min: 5 })
+        .withMessage("Full name should be at least 5 characters long"),
+    body("age")
+        .isInt({ min: 1 })
+        .withMessage("Age should be a positive integer"),
+    body("level")
+        .isIn(['PreKG', 'KG1', 'KG2'])
+        .withMessage("Invalid level. Valid levels are PreKG, KG1, KG2"),
+    body("address.city")
+        .isString()
+        .withMessage("City should be a string"),
+    body("address.street")
+        .isString()
+        .withMessage("Street should be a string"),
+    body("address.building")
+        .isString()
+        .withMessage("Building should be a string")
 ];
 
 exports.patchValidation = [
-	body("_id").isNumeric().withMessage("Child Id should be Number"),
-	body("fullName").optional().isString().withMessage("Child Name should be string"),
-	body("age").optional().isInt().withMessage("Child age is Invalid"),
-	body("level").optional().isIn(["PreKG", "KG1", "KG2"]).withMessage("Invalid Level Selection"),
-	body("address").optional().isObject().withMessage("Address is Invalid"),
-	body("address.city").optional().isString().withMessage("Invalid City"),
-	body("address.street").optional().isString().withMessage("Invalid Street"),
-	body("address.building").optional().isInt().withMessage("Invalid Building Number"),
-	// body("image").optional().isString().withMessage("Image is Invalid"),
-
+    param("id")
+        .isInt()
+        .withMessage("ID should be a number"),
+    body("fullName")
+        .optional()
+        .isString()
+        .withMessage("Full name should be a string")
+        .isLength({ min: 5 })
+        .withMessage("Full name should be at least 5 characters long"),
+    body("age")
+        .optional()
+        .isInt({ min: 1 })
+        .withMessage("Age should be a positive integer"),
+    body("level")
+        .optional()
+        .isIn(['PreKG', 'KG1', 'KG2'])
+        .withMessage("Invalid level. Valid levels are PreKG, KG1, KG2"),
+    body("address.city")
+        .optional()
+        .isString()
+        .withMessage("City should be a string"),
+    body("address.street")
+        .optional()
+        .isString()
+        .withMessage("Street should be a string"),
+    body("address.building")
+        .optional()
+        .isString()
+        .withMessage("Building should be a string")
 ];
-
-exports.getChildValidation = [param("id").isNumeric().withMessage("Child Id should be Number")];
-
 
 exports.deleteValidation = [
     param("id")
         .isInt()
         .withMessage("ID should be a number")
 ];
+
+
+exports.getChildValidation = [param("id").isNumeric().withMessage("Child Id should be Number")];
+

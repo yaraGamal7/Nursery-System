@@ -219,19 +219,28 @@ router
 	.post(upload.single("image"), teachervalidation.postValidation, validation, controller.addTeacher)
 	.delete(teachervalidation.deleteValidation, validation, controller.deleteTeacher);
 
-router.patch(
-	"/teachers",
+// router.patch(
+// 	"/teachers",
+// 	checkTeacherAndAdmin,
+// 	upload.single("image"),
+
+// 	teachervalidation.patchValidation,
+// 	validation,
+// 	controller.updateTeacher
+// );
+
+router
+.route("/teachers/:id")
+.get( checkAdmin, teachervalidation.getTeacherValidation, validation, controller.getTeacher)
+.delete(teachervalidation.deleteValidation, validation, controller.deleteTeacher)
+.patch(
 	checkTeacherAndAdmin,
 	upload.single("image"),
 
 	teachervalidation.patchValidation,
 	validation,
 	controller.updateTeacher
-);
-router
-.route("/teachers/:id")
-.get( checkAdmin, teachervalidation.getTeacherValidation, validation, controller.getTeacher)
-.delete(teachervalidation.deleteValidation, validation, controller.deleteTeacher);
+)
 
 router.put("/changePassword",
 checkTeacherAndAdmin,

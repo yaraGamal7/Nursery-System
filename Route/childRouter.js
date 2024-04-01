@@ -19,7 +19,7 @@ router
         validation,
         controller.addChild
     )
-    .patch(childValidation.patchValidation, validation, controller.updateChild);
+    // .patch(childValidation.patchValidation, validation, controller.updateChild);
 
 // Update Swagger documentation to include image field in post request
 /**
@@ -70,6 +70,7 @@ router
 
 router.route("/childs/:id")
     .get(checkAdmin, childValidation.getChildValidation, validation, controller.getChild)
-    .delete(childValidation.deleteValidation, validation, controller.deleteChild);
+    .delete(childValidation.deleteValidation, validation, controller.deleteChild)
+    .patch( childValidation.patchValidation, validation, controller.updateChild);
 
 module.exports = router;

@@ -17,60 +17,76 @@ exports.getAllTeachers = (request, response, next) => {
 		});
 };
 
-exports.addTeacher = (request, response, next) => {
-	if (request.file && request.file.path) {
-		request.body.image = request.file.path;
-	}
-	new TeacherSchema({
-	//	_id: request.body._id,
-		fullName: request.body.fullName,
-		password: bcrypt.hashSync(request.body.password, salt),
-		email: request.body.email,
-		image: request.body.image,
-	})
-		.save()
-		.then((data) => {
-			response.status(201).json({ data });
-		})
-		.catch((error) => next(error));
+
+exports.addTeacher = async (request, response, next) => {
+    try {
+        if (request.file && request.file.path) {
+            request.body.image = request.file.path;
+        }
+
+        // Check if teacher with the same email already exists
+        const oldTeacher = await TeacherSchema.findOne({ email: request.body.email });
+        if (oldTeacher) {
+            return response.status(409).json({ message: "Teacher Email already exists" });
+        }
+
+        // Create and save new teacher
+        const newTeacher = new TeacherSchema({
+            fullName: request.body.fullName,
+            password: bcrypt.hashSync(request.body.password, salt),
+            email: request.body.email,
+            image: request.body.image,
+        });
+        
+        const savedTeacher = await newTeacher.save();
+        response.status(201).json({ data: savedTeacher });
+    } catch (error) {
+        next(error);
+    }
 };
+
 
 exports.updateTeacher = (request, response, next) => {
-	let hashedPass = request.body.password ? bcrypt.hashSync(request.body.password, salt) : request.body.password;
-	if (request.body.id != request.id) {
-		let error = new Error("Not Authenticated");
-		error.status = 401;
-		next(error);
-	} else {
-		if (request.file && request.file.path) {
-			request.body.image = request.file.path;
+	const teacherId = request.params.id;
+  
+	let hashedPass = request.body.password ? bcrypt.hashSync(request.body.password, salt) : null;
+  
+	TeacherSchema.findById(teacherId)
+	  .then((existingTeacher) => {
+		if (!existingTeacher) {
+		  return response.status(404).json({ message: "Teacher not found" });
 		}
+  
+		if (request.file && request.file.path) {
+		  request.body.image = request.file.path;
+		}
+  
 		TeacherSchema.updateOne(
-			{
-				_id: request.body.id,
+		  { _id: teacherId },
+		  {
+			$set: {
+			  fullName: request.body.fullName,
+			  password: hashedPass || existingTeacher.password, 
+			  email: request.body.email,
+			  image: request.body.image || existingTeacher.image, 
 			},
-			{
-				$set: {
-					fullName: request.body.fullName,
-					password: hashedPass,
-					email: request.body.email,
-					image: request.body.image,
-				},
-			}
+		  }
 		)
-			.then((data) => {
-				if (data.matchedCount == 0) {
-					next(new Error("Teacher Not Found"));
-				} else {
-					response.status(200).json({ data: "Updated" });
-				}
-			})
-			.catch((error) => {
-				next(error);
-			});
-	}
-};
-
+		.then((data) => {
+		  if (data.matchedCount === 0) {
+			next(new Error("Teacher not found"));
+		  } else {
+			response.status(200).json({ message: "Teacher updated successfully" });
+		  }
+		})
+		.catch((error) => {
+		  next(error);
+		});
+	  })
+	  .catch((error) => {
+		next(error);
+	  });
+  };
 
 exports.deleteTeacher = (req, res, next) => {
 	const teacherId = req.params.id;

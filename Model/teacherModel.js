@@ -9,6 +9,8 @@ id: mongoose.Schema.Types.ObjectId,
 		type: String,
 		match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, "Please fill a valid email address"],
 		required: true,
+		unique: true,
+		lowercase: true,
 	},
 	image: { type: String, required: true },
 });
