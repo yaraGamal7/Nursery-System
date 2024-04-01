@@ -1,4 +1,3 @@
-
 const express = require("express");
 const controller = require("./../Controller/childController");
 const validation = require("./../Core/validations/validationMiddleWare");
@@ -20,8 +19,7 @@ router
         validation,
         controller.addChild
     )
-    .patch(childValidation.patchValidation, validation, controller.updateChild)
-    .delete(childValidation.deleteValidation, validation, controller.deleteChild);
+    .patch(childValidation.patchValidation, validation, controller.updateChild);
 
 // Update Swagger documentation to include image field in post request
 /**
@@ -70,6 +68,8 @@ router
  *         description: internal server error
  */
 
-router.get("/childs/:id", checkAdmin, childValidation.getChildValidation, validation, controller.getChild);
+router.route("/childs/:id")
+    .get(checkAdmin, childValidation.getChildValidation, validation, controller.getChild)
+    .delete(childValidation.deleteValidation, validation, controller.deleteChild);
 
 module.exports = router;

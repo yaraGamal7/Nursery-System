@@ -81,16 +81,29 @@ exports.updateChild = async (req, res, next) => {
     }
 };
 
-exports.deleteChild = (request, response, next) => {
-	ChildSchema.deleteOne({ _id: request.body.id })
-		.then((data) => {
-			if (data.deletedCount != 1) {
-				next(new Error("Child Not Found"));
-			} else {
-				response.status(200).json({ data: "Deleted" });
-			}
-		})
-		.catch((error) => {
-			next(error);
-		});
+// exports.deleteChild = (request, response, next) => {
+// 	ChildSchema.deleteOne({ _id: request.body.id })
+// 		.then((data) => {
+// 			if (data.deletedCount != 1) {
+// 				next(new Error("Child Not Found"));
+// 			} else {
+// 				response.status(200).json({ data: "Deleted" });
+// 			}
+// 		})
+// 		.catch((error) => {
+// 			next(error);
+// 		});
+// };
+
+exports.deleteChild = (req, res, next) => {
+    const childId = req.params.id;
+
+    ChildSchema.findOneAndDelete({ id: childId })
+        .then((deletedChild) => {
+            if (!deletedChild) {
+                return res.status(404).json({ message: "Child not found" });
+            }
+            res.status(200).json({ message: "Child deleted successfully", data: deletedChild });
+        })
+        .catch((error) => next(error));
 };

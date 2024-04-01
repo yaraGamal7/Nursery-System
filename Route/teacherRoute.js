@@ -178,7 +178,7 @@ const upload = require("../Core/Multer/MulterMiddleWare");
 
 /**
  * @swagger
- * /teachers/changepassword:
+ * /teachers/changePassword:
  *   post:
  *     summary: change the password
  *     tags: [Teachers]
@@ -228,7 +228,10 @@ router.patch(
 	validation,
 	controller.updateTeacher
 );
-router.get("/teachers/:id", checkAdmin, teachervalidation.getTeacherValidation, validation, controller.getTeacher);
+router
+.route("/teachers/:id")
+.get( checkAdmin, teachervalidation.getTeacherValidation, validation, controller.getTeacher)
+.delete(teachervalidation.deleteValidation, validation, controller.deleteTeacher);
 
 router.put("/changePassword",
 checkTeacherAndAdmin,

@@ -71,20 +71,26 @@ exports.updateTeacher = (request, response, next) => {
 	}
 };
 
-exports.deleteTeacher = (request, response, next) => {
-	TeacherSchema.deleteOne({ _id: request.body.id })
-		.then((data) => {
-			// console.log(data);
-			if (data.deletedCount != 1) {
-				next(new Error("Teacher Not Found"));
-			} else {
-				response.status(200).json({ data: "Deleted" });
-			}
-		})
-		.catch((error) => {
-			next(error);
-		});
-};
+
+exports.deleteTeacher = (req, res, next) => {
+	const teacherId = req.params.id;
+	TeacherSchema
+	  .findByIdAndDelete(teacherId)
+	  .then((deletedTeacher) => {
+		if (!deletedTeacher) {
+		  res.status(404).json({ data: "teacher not exists" });
+		}
+		res
+		  .status(200)
+		  .json({
+			message: "Teacher deleted successfully",
+			data: deletedTeacher,
+		  });
+	  })
+	  .catch((error) => next(error));
+  };
+
+
 
 exports.getTeacher = (request, response, next) => {
 	TeacherSchema.findById(request.params.id)

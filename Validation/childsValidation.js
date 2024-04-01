@@ -28,4 +28,9 @@ exports.patchValidation = [
 
 exports.getChildValidation = [param("id").isNumeric().withMessage("Child Id should be Number")];
 
-exports.deleteValidation = [body("_id").isNumeric().withMessage("Child Id should be Number")];
+
+exports.deleteValidation = [
+    param("id")
+        .isInt()
+        .withMessage("ID should be a number")
+];
